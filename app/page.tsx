@@ -108,7 +108,7 @@ export default function Home() {
   onError={(err) => console.error('LiveKit error:', err)}
 >
   <AudioConference />
-  <RoomAudioRenderer />
+  <RoomAudioRenderer volume={1.0} />
 </LiveKitRoom>
     )
   }
