@@ -26,14 +26,16 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (!user?.id || inCall) return
-    const interval = setInterval(async () => {
-      const res = await fetch(`/api/incoming?userId=${user.id}`)
-      const data = await res.json()
-      if (data) setIncoming(data)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [user, inCall])
+  if (!user?.id || inCall) return
+  const interval = setInterval(async () => {
+    const res = await fetch(`/api/incoming?userId=${user.id}`)
+    const data = await res.json()
+    if (data && data.caller_id !== user.id) {  // ← add this check
+      setIncoming(data)
+    }
+  }, 5000)
+  return () => clearInterval(interval)
+}, [user, inCall])
 
   const handleLogin = async (phone: string) => {
     const res = await fetch(`/api/users?phone=${encodeURIComponent(phone)}`)

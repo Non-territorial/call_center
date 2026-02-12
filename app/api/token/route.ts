@@ -7,11 +7,11 @@ export async function GET(req: NextRequest) {
   if (!userId) return new Response('Missing userId', { status: 400 })
 
   const { rows } = await pool.query(
-    `SELECT id FROM users 
-     WHERE id != $1 AND is_available = true 
-     ORDER BY RANDOM() LIMIT 1`,
-    [userId]
-  )
+  `SELECT id FROM users 
+   WHERE id != $1 AND is_available = true 
+   ORDER BY RANDOM() LIMIT 1`,
+  [userId]
+)
 
   if (!rows[0]) return new Response('No available users', { status: 404 })
 
