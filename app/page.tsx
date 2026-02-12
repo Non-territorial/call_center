@@ -94,15 +94,17 @@ export default function Home() {
 
   if (inCall && token) {
     return (
-     <LiveKitRoom
+    <LiveKitRoom
   token={token}
   serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-  connect
-  audio
+  connect={true}
+  audio={true}
   video={false}
-  className="h-screen w-screen"
+  onConnected={() => console.log('Connected to room')}
+  onDisconnected={() => console.log('Disconnected')}
+  onError={(err) => console.error('LiveKit error:', err)}
 >
-  <AudioConference/>
+  <AudioConference />
 </LiveKitRoom>
     )
   }
