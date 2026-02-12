@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { LiveKitRoom, AudioConference } from '@livekit/components-react'
 import '@livekit/components-styles'
+import { RoomAudioRenderer } from '@livekit/components-react';
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
@@ -105,6 +106,7 @@ export default function Home() {
   onError={(err) => console.error('LiveKit error:', err)}
 >
   <AudioConference />
+  <RoomAudioRenderer />
 </LiveKitRoom>
     )
   }
