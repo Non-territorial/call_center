@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
      FROM calls c 
      JOIN users u ON c.caller_id = u.id 
      WHERE c.target_id = $1 AND c.status = 'pending' 
+     AND c.created_at > NOW() - INTERVAL '5 minutes'
      ORDER BY c.created_at DESC LIMIT 1`,
     [userId]
   )
