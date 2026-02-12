@@ -87,7 +87,7 @@ export default function Home() {
       body: JSON.stringify({ callId: incoming.id, userId: user.id })
     })
     const { roomName } = await res.json()
-    const tokenRes = await fetch(`/api/token?userId=${user.id}`)
+    const tokenRes = await fetch(`/api/join-token?userId=${user.id}&roomName=${encodeURIComponent(roomName)}`)
     const { token } = await tokenRes.json()
     setToken(token)
     setRoomName(roomName)
