@@ -34,3 +34,12 @@ body {
   color: var(--foreground);
 }
 
+.lk-chat,
+.lk-chat-toggle-button,
+.lk-chat-list,
+.lk-chat-form,
+.lk-chat-message,
+.lk-chat-input,
+.lk-chat-header {
+  display: none !important;
+}
