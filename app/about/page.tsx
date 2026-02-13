@@ -30,7 +30,7 @@ export default function About() {
         </p>
         
         <p className="text-sm leading-relaxed opacity-90">
-          You dial the number of someone you know yet somebody else answers. Perhaps you called the wrong number, you think. For a moment, it crosses your mind that maybe you are talking with the right person, but you soon realise that you have a cross connection.
+          You trigger the call without knowing who is going to answers. Perhaps you called the wrong number, or not. For a moment, it crosses your mind that maybe you are talking with the right person, but you soon realise that you have a cross connection.
         </p>
         
         <p className="text-sm leading-relaxed opacity-90">
