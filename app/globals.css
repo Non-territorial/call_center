@@ -34,8 +34,12 @@ body {
   color: var(--foreground);
 }
 
-.lk-chat,
+[data-lk-chat-toggle],
 .lk-chat-toggle-button,
+.lk-floating-chat-toggle,
+button[aria-label="Chat"],
+.lk-chat-toggle,
+.lk-chat,
 .lk-chat-list,
 .lk-chat-form,
 .lk-chat-message,

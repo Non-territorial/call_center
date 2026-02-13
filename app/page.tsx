@@ -1,9 +1,7 @@
-// app/page.tsx  (complete file)
 'use client'
 import { useState, useEffect } from 'react'
-import { LiveKitRoom, AudioConference } from '@livekit/components-react'
+import CallModes from '@/components/CallModes' // adjust path if needed
 import '@livekit/components-styles'
-import { RoomAudioRenderer } from '@livekit/components-react';
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
@@ -26,16 +24,16 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-  if (!user?.id || inCall) return
-  const interval = setInterval(async () => {
-    const res = await fetch(`/api/incoming?userId=${user.id}`)
-    const data = await res.json()
-    if (data && data.caller_id !== user.id) {
-  setIncoming(data)
-}
-  }, 5000)
-  return () => clearInterval(interval)
-}, [user, inCall])
+    if (!user?.id || inCall) return
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/incoming?userId=${user.id}`)
+      const data = await res.json()
+      if (data && data.caller_id !== user.id) {
+        setIncoming(data)
+      }
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [user, inCall])
 
   const handleLogin = async (phone: string) => {
     const res = await fetch(`/api/users?phone=${encodeURIComponent(phone)}`)
@@ -70,14 +68,21 @@ export default function Home() {
   }
 
   const startCall = async () => {
-    if (!user?.id) return
-    const res = await fetch(`/api/token?userId=${user.id}`)
-    if (!res.ok) return alert('No available users')
-    const data = await res.json()
-    setToken(data.token)
-    setRoomName(data.roomName)
-    setInCall(true)
+  if (!user?.id) return
+  const res = await fetch(`/api/token?userId=${user.id}`)
+  if (!res.ok) {
+    alert('No available users online')
+    return
   }
+  const data = await res.json()
+  if (!data.token || !data.roomName) {
+    alert('No available users online')
+    return
+  }
+  setToken(data.token)
+  setRoomName(data.roomName)
+  setInCall(true)
+}
 
   const acceptCall = async () => {
     if (!incoming || !user?.id) return
@@ -96,27 +101,11 @@ export default function Home() {
   }
 
   if (inCall && token) {
-    return (
-    <LiveKitRoom
-  token={token}
-  serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-  connect={true}
-  audio={true}
-  video={false}
-  onConnected={() => console.log('Connected to room')}
-  onDisconnected={() => console.log('Disconnected')}
-  onError={(err) => console.error('LiveKit error:', err)}
->
-  <AudioConference />
-  <RoomAudioRenderer volume={1.0} />
-  <button 
-  onClick={() => setInCall(false)} 
-  className="fixed bottom-20 left-0 right-0 mx-auto w-40 py-3 text-[11px] tracking-[0.2em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
->
-  END CALL
-</button>
-</LiveKitRoom>
-    )
+    return <CallModes 
+      token={token} 
+      roomName={roomName} 
+      onEndCall={() => setInCall(false)} 
+    />
   }
 
   /* ─── Bloom orb layer (reused in both logged-in and logged-out views) ─── */
@@ -295,12 +284,20 @@ export default function Home() {
                 placeholder="Phone number"
                 className="w-full p-5 bg-white/10 rounded-xl text-white placeholder-white/50 border-none focus:outline-none focus:ring-2 focus:ring-white/30"
               />
-              <button
-                onClick={() => {/* read inputs and call handleRegister */}}
-                className="w-full py-5 bg-white/20 rounded-full text-lg hover:bg-white/30"
-              >
-                REGISTER
-              </button>
+             <button
+  onClick={() => {
+    const name = (document.querySelector('input[placeholder="Name"]') as HTMLInputElement)?.value.trim()
+const phone = (document.querySelector('input[type="tel"]') as HTMLInputElement)?.value.trim()
+    if (name && phone) {
+      handleRegister(name, phone)
+    } else {
+      alert('Enter name and phone number')
+    }
+  }}
+  className="w-full py-5 bg-white/20 rounded-full text-lg hover:bg-white/30"
+>
+  REGISTER
+</button>
             </div>
           </div>
         </div>
