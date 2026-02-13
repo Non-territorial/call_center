@@ -18,12 +18,27 @@ export default function RegisterForm({ onRegistered }: { onRegistered: () => voi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 flex flex-col items-center">
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" className="input-glass w-3/4" required />
-      <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone Number" className="input-glass w-3/4" required />
-      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" className="input-glass w-3/4" required />
-      <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="input-glass w-3/4" type="password" required />
-      <button type="submit" className="button-glass">Register</button>
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full">
+      <input
+        value={name}
+        onChange={e => setName(e.target.value)}
+        placeholder="Name"
+        className="w-3/4 p-4 bg-white/6 border border-white/12 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 text-sm tracking-wide transition-colors"
+        required
+      />
+      <input
+        value={phone}
+        onChange={e => setPhone(e.target.value)}
+        placeholder="Phone Number"
+        className="w-3/4 p-4 bg-white/6 border border-white/12 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 text-sm tracking-wide transition-colors"
+        required
+      />
+      <button
+        type="submit"
+        className="w-3/4 py-3 text-[11px] tracking-[0.2em] uppercase text-[#0e1f3d] bg-white rounded-xl hover:opacity-85 transition-opacity mt-2"
+      >
+        Register
+      </button>
     </form>
   );
 }

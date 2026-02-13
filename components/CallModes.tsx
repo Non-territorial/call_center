@@ -32,18 +32,26 @@ export default function CallModes() {
         video={false}
       >
         <AudioConference />
-        <div style={{ position: 'fixed', bottom: 20, width: '100%', textAlign: 'center' }}>
-          In call • Room: {roomName}
+        <div className="fixed bottom-5 w-full text-center text-xs text-white/40 tracking-widest uppercase">
+          In call · Room: {roomName}
         </div>
       </LiveKitRoom>
     );
   }
 
   return (
-    <div className="space-y-4 text-center">
-      <button onClick={startCall} className="button-glass py-6 text-2xl w-3/4">
-        CALL
-      </button>
+    <div className="flex flex-col items-center">
+      {/* Bloom-style main verb button — matches the Call verb in page.tsx */}
+      <div className="w-full border-t border-b border-white/13 py-1">
+        <div className="flex justify-center">
+          <button
+            onClick={startCall}
+            className="text-2xl font-light text-white bg-transparent border-none cursor-pointer px-8 py-5 tracking-wide transition-opacity hover:opacity-65"
+          >
+            CALL
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

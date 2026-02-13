@@ -19,16 +19,21 @@ export default function PhoneLogin() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 flex flex-col items-center">
-      <h1 className="text-4xl">Welcome back</h1>
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-6 w-full">
+      <h1 className="text-3xl font-light tracking-wide text-white">Welcome back</h1>
       <input
         value={phone}
         onChange={e => setPhone(e.target.value)}
         placeholder="your phone number"
-        className="input-glass w-3/4"
+        className="w-3/4 p-4 bg-white/6 border border-white/12 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 text-sm tracking-wide transition-colors"
         required
       />
-      <button type="submit" className="button-glass w-3/4">ENTER</button>
+      <button
+        type="submit"
+        className="w-3/4 py-3 text-[11px] tracking-[0.2em] uppercase text-[#0e1f3d] bg-white rounded-xl hover:opacity-85 transition-opacity"
+      >
+        ENTER
+      </button>
     </form>
   )
 }
