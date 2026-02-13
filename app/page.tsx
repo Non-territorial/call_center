@@ -248,9 +248,10 @@ export default function Home() {
       {showLogin && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-[#0e1f3d]/90 border border-white/15 rounded-2xl p-8 w-full max-w-sm relative mx-4">
+             <Orbs />
             <button onClick={() => setShowLogin(false)} className="absolute top-4 right-5 text-white/40 hover:text-white text-2xl transition-colors">×</button>
             <div className="space-y-8">
-              <h2 className="text-4xl font-bold">Welcome back</h2>
+              <h2 className="text-4xl">Welcome back</h2>
               <input
                 type="tel"
                 value={loginPhone}
@@ -271,10 +272,12 @@ export default function Home() {
 
       {showRegister && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+        
           <div className="bg-[#0e1f3d]/90 border border-white/15 rounded-2xl p-8 w-full max-w-sm relative mx-4">
+              <Orbs />
             <button onClick={() => setShowRegister(false)} className="absolute top-4 right-5 text-white/40 hover:text-white text-2xl transition-colors">×</button>
             <div className="space-y-8">
-              <h2 className="text-4xl font-bold">Register</h2>
+              <h2 className="text-4xl">Register</h2>
               <input
                 placeholder="Name"
                 className="w-full p-5 bg-white/10 rounded-xl text-white placeholder-white/50 border-none focus:outline-none focus:ring-2 focus:ring-white/30"
