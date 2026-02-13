@@ -109,6 +109,12 @@ export default function Home() {
 >
   <AudioConference />
   <RoomAudioRenderer volume={1.0} />
+  <button 
+  onClick={() => setInCall(false)} 
+  className="fixed bottom-20 left-0 right-0 mx-auto w-40 py-4 bg-red-600 rounded-full text-white text-lg font-medium hover:bg-red-700"
+>
+  End Call
+</button>
 </LiveKitRoom>
     )
   }
@@ -170,6 +176,16 @@ export default function Home() {
           >
             {user.is_available ? 'Become unavailable' : 'Become available'}
           </button>
+          <button
+  onClick={() => {
+    localStorage.removeItem('user')
+    setLoggedIn(false)
+    setUser(null)
+  }}
+  className="w-full py-3 text-[11px] tracking-[0.2em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all mt-6"
+>
+  LOG OUT
+</button>
 
         </div>
 
