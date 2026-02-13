@@ -129,7 +129,7 @@ export default function Home() {
           {/* Title */}
           <div className="text-center">
             <h1 className="text-5xl font-light tracking-[0.2rem] uppercase">CALL CENTER</h1>
-            <p className="text-xs tracking-[0.3em] uppercase text-white/50 mt-2">distributed artwork</p>
+            <p className="text-xs tracking-[0.25em] uppercase text-white/50 mt-2">distributed artwork</p>
           </div>
 
           {/* Availability status pill */}
@@ -223,8 +223,8 @@ export default function Home() {
       <div className="relative z-10 text-center flex flex-col items-center gap-10 max-w-xs w-full px-8">
 
         <div>
-          <h1 className="text-5xl font-light tracking-[0.25em] uppercase">CALL CENTER</h1>
-          <p className="text-xs tracking-[0.3em] uppercase text-white/50 mt-2">distributed artwork</p>
+          <h1 className="text-5xl font-light tracking-[0.2em] uppercase">CALL CENTER</h1>
+          <p className="text-xs tracking-[0.25em] uppercase text-white/50 mt-2">distributed artwork</p>
         </div>
 
         <div className="w-full flex flex-col gap-3">
