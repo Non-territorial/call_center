@@ -111,9 +111,9 @@ export default function Home() {
   <RoomAudioRenderer volume={1.0} />
   <button 
   onClick={() => setInCall(false)} 
-  className="fixed bottom-20 left-0 right-0 mx-auto w-40 py-4 bg-red-600 rounded-full text-white text-lg font-medium hover:bg-red-700"
+  className="fixed bottom-20 left-0 right-0 mx-auto w-40 py-3 text-[11px] tracking-[0.2em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
 >
-  End Call
+  END CALL
 </button>
 </LiveKitRoom>
     )
@@ -139,64 +139,70 @@ export default function Home() {
 
           {/* Title */}
           <div className="text-center">
-            <h1 className="text-5xl font-light tracking-[0.25em] uppercase">CALL CENTER</h1>
+            <h1 className="text-5xl font-light tracking-[0.2rem] uppercase">CALL CENTER</h1>
             <p className="text-xs tracking-[0.3em] uppercase text-white/50 mt-2">distributed artwork</p>
           </div>
 
           {/* Availability status pill */}
           <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <div className={`w-2 h-2 rounded-full shrink-0 ${user.is_available ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-white/25'}`} />
+            <div className={`w-2 h-2 rounded-full shrink-0 ${user.is_available ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-red-600 shadow-[0_0_8px_rgba(52,211,153,0.8)]'}`} />
             <span className="text-[10px] tracking-widest text-white/50 uppercase">{user.is_available ? 'available' : 'unavailable'}</span>
           </div>
 
           {/* Call — main verb, Bloom-style */}
           <div className="w-full border-t border-b border-white/13 py-1">
             <div className="flex justify-center">
-              <button onClick={startCall} className="text-2xl font-light text-white bg-transparent border-none cursor-pointer px-8 py-5 tracking-wide transition-opacity hover:opacity-65">
-                Call
+              <button onClick={startCall} className="text-3xl font-light text-white bg-transparent border-none cursor-pointer px-8 py-5 tracking-wide transition-opacity hover:opacity-65">
+                CALL
               </button>
             </div>
-            <p className="text-xs text-white/50 text-center pb-4 px-4 leading-relaxed">
+            <p className="text-sm text-white/50 text-center pb-4 px-4 leading-relaxed">
               Dial out and reach the unexpected.
             </p>
           </div>
 
           {/* Availability toggle */}
-          <button
-            onClick={async () => {
-              const newVal = !user.is_available
-              await fetch('/api/users', {
-                method: 'POST',
-                body: JSON.stringify({ id: user.id, is_available: newVal }),
-                headers: { 'Content-Type': 'application/json' }
-              })
-              setUser({ ...user, is_available: newVal })
-            }}
-            className="w-full py-3 text-[11px] tracking-[0.15em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
-          >
-            {user.is_available ? 'Become unavailable' : 'Become available'}
-          </button>
-          <button
-  onClick={() => {
-    localStorage.removeItem('user')
-    setLoggedIn(false)
-    setUser(null)
-  }}
-  className="w-full py-3 text-[11px] tracking-[0.2em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all mt-6"
->
-  LOG OUT
-</button>
+          
+          <div className="flex flex-col gap-2 w-full">
+  <button
+    onClick={async () => {
+      const newVal = !user.is_available
+      await fetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify({ id: user.id, is_available: newVal }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      setUser({ ...user, is_available: newVal })
+    }}
+    className="w-full py-3 text-[11px] tracking-[0.15em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
+  >
+    {user.is_available ? 'Become unavailable' : 'Become available'}
+  </button>
+
+  <button
+    onClick={() => {
+      localStorage.removeItem('user')
+      setLoggedIn(false)
+      setUser(null)
+    }}
+    className="w-full py-3 text-[11px] tracking-[0.15em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
+  >
+    LOG OUT
+  </button>
+</div>
 
         </div>
 
         {/* Footer bar — like Bloom's Trope strip */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.07] bg-black/50 backdrop-blur-md px-5 py-3 flex items-center gap-3 z-20">
-          <div className="w-10 h-10 rounded-[9px] shrink-0 bg-linear-to-br from-[#1a4fd6] via-[#5b2fa0] to-[#1a7a9a] flex items-center justify-center text-base">📡</div>
-          <div>
-            <div className="text-sm text-white tracking-wide">Higher Forces</div>
-            <div className="text-xs text-white/50 mt-0.5">distributed artwork</div>
-          </div>
-        </div>
+       <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.07] bg-black/50 backdrop-blur-md px-5 py-3 flex items-center justify-between z-20">
+  <a
+    href="/about"
+    className="text-white text-sm hover:text-gray-400"
+  >
+    About
+  </a>
+  <div className="text-sm text-white tracking-wide">Higher Forces</div>
+</div>
 
         {/* Incoming call modal */}
         {incoming && (
