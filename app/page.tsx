@@ -188,7 +188,7 @@ export default function Home() {
     href="/about"
     className="text-white text-sm hover:text-gray-400"
   >
-    About
+    Synopsis
   </a>
   <div className="text-sm text-white tracking-wide">Higher Forces</div>
 </div>
