@@ -6,7 +6,7 @@ import '@livekit/components-styles'
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loggedIn, setLoggedIn] = useState(false)
-  const [showLogin, setShowLogin] = useState(true)
+  const [showLogin, setShowLogin] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [inCall, setInCall] = useState(false)
   const [token, setToken] = useState('')
