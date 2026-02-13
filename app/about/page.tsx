@@ -43,7 +43,7 @@ export default function About() {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.07] bg-black/50 backdrop-blur-md px-5 py-3 flex items-center justify-between z-20">
-        <a href="/" className="text-white text-sm">Back</a>
+        <a href="/" className="text-white text-sm hover:text-gray-400">Back</a>
         <div className="text-sm text-white tracking-wide">Higher Forces</div>
       </div>
     </div>
