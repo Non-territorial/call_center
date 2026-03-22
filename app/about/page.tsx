@@ -1,51 +1,58 @@
-// app/about/page.tsx
 'use client'
-import { useEffect } from 'react'
 
-export default function About() {
-  useEffect(() => {
-    console.log('About page loaded')
-  }, [])
+const PHONE: React.CSSProperties = { width: 360, height: 780, background: '#000', borderRadius: 32, border: '1px solid rgba(255,255,255,0.18)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }
+const RULE: React.CSSProperties = { height: 1, background: 'rgba(255,255,255,0.15)', flexShrink: 0 }
+const NUM: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', minWidth: 24, flexShrink: 0, lineHeight: 1 }
+const LBL: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, letterSpacing: '0.1em', textTransform: 'uppercase', lineHeight: 1 }
 
-  /* ─── Bloom orb layer (reused in both logged-in and logged-out views) ─── */
-  const Orbs = () => (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -top-32 -left-20 w-105 h-105 rounded-full bg-[radial-gradient(circle,rgba(26,79,190,0.70)_0%,transparent_70%)] mix-blend-screen animate-[breathe1_9s_ease-in-out_infinite]" />
-      <div className="absolute top-20 left-16 w-90 h-90 rounded-full bg-[radial-gradient(circle,rgba(80,40,160,0.55)_0%,transparent_68%)] mix-blend-screen animate-[breathe2_11s_ease-in-out_infinite]" />
-      <div className="absolute top-40 -right-24 w-95 h-95 rounded-full bg-[radial-gradient(circle,rgba(20,110,140,0.60)_0%,transparent_68%)] mix-blend-screen animate-[breathe3_10s_ease-in-out_infinite]" />
-      <div className="absolute bottom-16 -left-14 w-75 h-75 rounded-full bg-[radial-gradient(circle,rgba(30,80,200,0.50)_0%,transparent_65%)] mix-blend-screen animate-[breathe1_12s_ease-in-out_infinite_reverse]" />
-      <div className="absolute -bottom-10 right-0 w-70 h-70 rounded-full bg-[radial-gradient(circle,rgba(60,20,130,0.45)_0%,transparent_65%)] mix-blend-screen animate-[breathe2_8s_ease-in-out_infinite_reverse]" />
+function Row({ num, label, onClick, color }: { num: string; label: string; onClick?: () => void; color?: string }) {
+  return (
+    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: onClick ? 'pointer' : 'default', flexShrink: 0 }}>
+      <span style={NUM}>{num}</span>
+      <span style={{ ...LBL, color: color ?? 'rgba(255,255,255,0.72)' }}>{label}</span>
     </div>
   )
+}
 
+export default function About() {
   return (
-    <div className="relative min-h-screen bg-[#0e1f3d] text-white flex flex-col items-center justify-center p-6 overflow-hidden">
-      <Orbs />
+    <div style={PHONE}>
 
-      <div className="relative z-10 max-w-xs w-full text-left flex flex-col gap-6">
-        <h1 className="text-4xl font-light uppercase text-center mb-6">SYNOPSIS</h1>
-        
-        <p className="text-sm leading-relaxed opacity-90">
-          “Call Center” is a distributed art piece that strives on serendipity and unexpected encounters to bring about unforeseen experiences.
-        </p>
-        
-        <p className="text-sm leading-relaxed opacity-90">
-          You trigger the call without knowing who is going to answers. Perhaps you called the wrong number, or not. For a moment, it crosses your mind that maybe you are talking with the right person, but you soon realise that you have a cross connection.
-        </p>
-        
-        <p className="text-sm leading-relaxed opacity-90">
-          You also get the impression that this person was awaiting a call. Maybe the person on the other side noticed that you just wanted to talk. Neither of you hangs up.
-        </p>
-        
-        <p className="text-sm leading-relaxed opacity-90">
-          No accounts, no profiles, no persistence beyond availability status. Pure transient encounter.
-        </p>
+      <div style={{ height: 60, background: '#000', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+        <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 19, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1 }}>CALL CENTER</span>
+        <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 8, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.3em', textTransform: 'uppercase' }}>DISTRIBUTED ARTWORK</span>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.07] bg-black/50 backdrop-blur-md px-5 py-3 flex items-center justify-between z-20">
-        <a href="/" className="text-white text-sm hover:text-gray-400">Back</a>
-        <div className="text-sm text-white tracking-wide">Higher Forces</div>
+      <div style={{ padding: '0 28px', background: '#000', flexShrink: 0 }}>
+        <div style={{ width: '100%', height: 220, overflow: 'hidden', position: 'relative' }}>
+          <img src="/curtains.jpeg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block', transform: 'scale(2.2)', filter: 'brightness(0.75)' }} />
+        </div>
       </div>
+
+      <div style={{ flex: 1, background: '#000', padding: '0 28px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={RULE} />
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 0' }}>
+          {[
+            'You call and somebody answers. For a moment, you believe you have reached the wrong person. Then, more disturbing, the possibility crosses your mind that you have reached exactly the right one.',
+            'Neither of you hangs up.',
+            'The entire architecture of modern communication exists to eliminate friction — to ensure every call reaches its intended recipient with maximum efficiency. What the system produces is the perfect simulation of communication. The channel functions. And yet nothing is exchanged that was not already anticipated before the call was placed.',
+            'CALL CENTER arises from the opposite premise. The call goes somewhere you cannot fully see, toward a person you did not select, in conditions neither of you prepared for.',
+            'The form is open not because it is undefined, but because its constraints are precisely calibrated to prevent repetition. The algorithm does not guarantee surprise — it makes surprise structurally probable.',
+            'Every call is an instantiation. The work is the condition. The system does not answer what happens next. That is the point.',
+          ].map((p, i) => (
+            <p key={i} style={{ fontFamily: 'Isocpeur, monospace', fontSize: 14, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em', lineHeight: 1.75, margin: '0 0 16px' }}>{p}</p>
+          ))}
+        </div>
+        <div style={{ paddingTop: 20 }}>
+        <div style={RULE} />
+        <Row num="01" label="BACK" onClick={() => window.location.href = '/'} color="rgba(255,255,255,0.35)" />
+        <div style={RULE} />
+        <Row num="02" label="HIGHER FORCES" onClick={() => window.open('https://higherforces.art', '_blank')} />
+        <div style={RULE} />
+        <div style={{ height: 20 }} />
+        </div>
+      </div>
+
     </div>
   )
 }

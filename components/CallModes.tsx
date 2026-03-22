@@ -1,7 +1,11 @@
 'use client'
-
 import { LiveKitRoom, AudioConference, RoomAudioRenderer } from '@livekit/components-react'
 import '@livekit/components-styles'
+
+const PHONE: React.CSSProperties = { width: 360, height: 780, background: '#000', borderRadius: 32, border: '1px solid rgba(255,255,255,0.18)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }
+const RULE: React.CSSProperties = { height: 1, background: 'rgba(255,255,255,0.15)', flexShrink: 0 }
+const NUM: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', minWidth: 24, flexShrink: 0, lineHeight: 1 }
+const LBL: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, letterSpacing: '0.1em', textTransform: 'uppercase', lineHeight: 1 }
 
 interface CallModesProps {
   token: string
@@ -17,24 +21,46 @@ export default function CallModes({ token, roomName, onEndCall }: CallModesProps
       connect={true}
       audio={true}
       video={false}
-      onConnected={() => console.log('Connected to room')}
-      onDisconnected={() => console.log('Disconnected')}
-      onError={(err) => console.error('LiveKit error:', err)}
+      onDisconnected={onEndCall}
     >
-      <AudioConference
-       />
+      <AudioConference />
       <RoomAudioRenderer volume={1.0} />
 
-      <div className="fixed bottom-5 w-full text-center text-xs text-white/40 tracking-widest uppercase">
-        In call · Room: {roomName}
-      </div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={PHONE}>
 
-      <button
-        onClick={onEndCall}
-        className="fixed bottom-20 left-0 right-0 mx-auto w-40 py-3 text-[11px] tracking-[0.2em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
-      >
-        END CALL
-      </button>
+        <div style={{ height: 60, background: '#000', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+          <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 19, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1 }}>CALL CENTER</span>
+          <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 8, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.3em', textTransform: 'uppercase' }}>DISTRIBUTED ARTWORK</span>
+        </div>
+
+        <div style={{ padding: '0 28px', background: '#000', flexShrink: 0 }}>
+          <div style={{ width: '100%', height: 220, overflow: 'hidden', position: 'relative' }}>
+            <img src="/curtains.jpeg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block', transform: 'scale(2.2)', filter: 'brightness(0.75)' }} />
+          </div>
+        </div>
+
+        <div style={{ flex: 1, background: '#000', padding: '0 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={RULE} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', flexShrink: 0 }}>
+            <span style={NUM}>01</span>
+            <span style={{ ...LBL, color: 'rgba(120,220,160,0.85)' }}>IN CALL</span>
+          </div>
+          <div style={RULE} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', flexShrink: 0 }}>
+            <span style={NUM}>02</span>
+            <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{roomName}</span>
+          </div>
+          <div style={RULE} />
+          <div onClick={onEndCall} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: 'pointer', flexShrink: 0 }}>
+            <span style={NUM}>03</span>
+            <span style={{ ...LBL, color: 'rgba(255,100,100,0.8)' }}>END CALL</span>
+          </div>
+          <div style={RULE} />
+        </div>
+
+      </div>
+      </div>
     </LiveKitRoom>
   )
 }

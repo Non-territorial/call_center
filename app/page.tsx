@@ -1,26 +1,83 @@
 'use client'
 import { useState, useEffect } from 'react'
-import CallModes from '@/components/CallModes' // adjust path if needed
+import CallModes from '@/components/CallModes'
 import '@livekit/components-styles'
+
+const PHONE: React.CSSProperties = {
+  width: 360,
+  height: 780,
+  background: '#000',
+  borderRadius: 32,
+  border: '1px solid rgba(255,255,255,0.18)',
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+}
+
+// Zoomed-in curtains — same image but cropped to feel different from the background
+const ZOOM_IMG: React.CSSProperties = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  objectPosition: 'center center',
+  display: 'block',
+  transform: 'scale(2.2) translateY(8%)',
+  filter: 'brightness(0.75)',
+}
+
+const RULE: React.CSSProperties = { height: 1, background: 'rgba(255,255,255,0.15)', flexShrink: 0 }
+const NUM: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', minWidth: 24, flexShrink: 0, lineHeight: 1 }
+const LBL: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, letterSpacing: '0.1em', textTransform: 'uppercase', lineHeight: 1 }
+const INPUT: React.CSSProperties = { width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.2)', fontFamily: 'Isocpeur, monospace', fontSize: 15, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.1em', padding: '8px 0', outline: 'none', textTransform: 'uppercase' }
+const FIELD_LBL: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 10, letterSpacing: '0.25em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 10, display: 'block' }
+
+function Row({ num, label, onClick, color }: { num: string; label: string; onClick?: () => void; color?: string }) {
+  return (
+    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: onClick ? 'pointer' : 'default', flexShrink: 0 }}>
+      <span style={NUM}>{num}</span>
+      <span style={{ ...LBL, color: color ?? 'rgba(255,255,255,0.72)' }}>{label}</span>
+    </div>
+  )
+}
+
+function TopBar() {
+  return (
+    <div style={{ height: 60, background: '#000', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+      <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 19, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1 }}>CALL CENTER</span>
+      <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 8, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.3em', textTransform: 'uppercase' }}>DISTRIBUTED ARTWORK</span>
+    </div>
+  )
+}
+
+function ZoomedCurtains() {
+  return (
+    <div style={{ padding: '0 28px', background: '#000', flexShrink: 0 }}>
+      <div style={{ width: '100%', height: 220, overflow: 'hidden', position: 'relative' }}>
+        <img src="/curtains.jpeg" alt="" style={ZOOM_IMG} />
+      </div>
+    </div>
+  )
+}
+
+function List({ children }: { children: React.ReactNode }) {
+  return <div style={{ flex: 1, background: '#000', padding: '0 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>{children}</div>
+}
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loggedIn, setLoggedIn] = useState(false)
-  const [showLogin, setShowLogin] = useState(false)
-  const [showRegister, setShowRegister] = useState(false)
+  const [view, setView] = useState<'home' | 'login' | 'register'>('home')
   const [inCall, setInCall] = useState(false)
   const [token, setToken] = useState('')
   const [roomName, setRoomName] = useState('')
   const [incoming, setIncoming] = useState<any>(null)
   const [loginPhone, setLoginPhone] = useState('')
+  const [regName, setRegName] = useState('')
+  const [regPhone, setRegPhone] = useState('')
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
-    if (stored) {
-      const u = JSON.parse(stored)
-      setUser(u)
-      setLoggedIn(true)
-    }
+    if (stored) { const u = JSON.parse(stored); setUser(u); setLoggedIn(true) }
   }, [])
 
   useEffect(() => {
@@ -28,283 +85,163 @@ export default function Home() {
     const interval = setInterval(async () => {
       const res = await fetch(`/api/incoming?userId=${user.id}`)
       const data = await res.json()
-      if (data && data.caller_id !== user.id) {
-        setIncoming(data)
-      }
+      if (data && data.caller_id !== user.id) setIncoming(data)
     }, 5000)
     return () => clearInterval(interval)
   }, [user, inCall])
 
-  const handleLogin = async (phone: string) => {
-    const res = await fetch(`/api/users?phone=${encodeURIComponent(phone)}`)
+  const handleLogin = async () => {
+    const res = await fetch(`/api/users?phone=${encodeURIComponent(loginPhone)}`)
     if (res.ok) {
       const [found] = await res.json()
-      if (found) {
-        localStorage.setItem('user', JSON.stringify(found))
-        setUser(found)
-        setLoggedIn(true)
-        setShowLogin(false)
-      } else {
-        alert('No user found')
-      }
+      if (found) { localStorage.setItem('user', JSON.stringify(found)); setUser(found); setLoggedIn(true); setView('home') }
+      else alert('No user found')
     }
   }
 
-  const handleRegister = async (name: string, phone: string) => {
-    const res = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone_number: phone })
-    })
+  const handleRegister = async () => {
+    const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: regName, phone_number: regPhone }) })
     if (res.ok) {
-      const newUser = await res.json()
-      localStorage.setItem('user', JSON.stringify(newUser))
-      setUser(newUser)
-      setLoggedIn(true)
-      setShowRegister(false)
-    } else {
-      alert('Registration failed')
-    }
+      const u = await res.json()
+      localStorage.setItem('user', JSON.stringify(u)); setUser(u); setLoggedIn(true); setView('home')
+    } else alert('Registration failed')
   }
 
   const startCall = async () => {
-  if (!user?.id) return
-  const res = await fetch(`/api/token?userId=${user.id}`)
-  if (!res.ok) {
-    alert('No available users online')
-    return
+    if (!user?.id) return
+    const res = await fetch(`/api/token?userId=${user.id}`)
+    if (!res.ok) { alert('No available users online'); return }
+    const data = await res.json()
+    if (!data.token || !data.roomName) { alert('No available users online'); return }
+    setToken(data.token); setRoomName(data.roomName); setInCall(true)
   }
-  const data = await res.json()
-  if (!data.token || !data.roomName) {
-    alert('No available users online')
-    return
-  }
-  setToken(data.token)
-  setRoomName(data.roomName)
-  setInCall(true)
-}
 
   const acceptCall = async () => {
     if (!incoming || !user?.id) return
-    const res = await fetch('/api/accept-call', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ callId: incoming.id, userId: user.id })
-    })
-    const { roomName } = await res.json()
-    const tokenRes = await fetch(`/api/join-token?userId=${user.id}&roomName=${encodeURIComponent(roomName)}`)
-    const { token } = await tokenRes.json()
-    setToken(token)
-    setRoomName(roomName)
-    setInCall(true)
-    setIncoming(null)
+    const res = await fetch('/api/accept-call', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ callId: incoming.id, userId: user.id }) })
+    const { roomName: rn } = await res.json()
+    const tokenRes = await fetch(`/api/join-token?userId=${user.id}&roomName=${encodeURIComponent(rn)}`)
+    const { token: tk } = await tokenRes.json()
+    setToken(tk); setRoomName(rn); setInCall(true); setIncoming(null)
   }
 
-  if (inCall && token) {
-    return <CallModes 
-      token={token} 
-      roomName={roomName} 
-      onEndCall={() => setInCall(false)} 
-    />
+  const toggleAvailability = async () => {
+    const newVal = !user.is_available
+    await fetch('/api/users', { method: 'POST', body: JSON.stringify({ id: user.id, is_available: newVal }), headers: { 'Content-Type': 'application/json' } })
+    const updated = { ...user, is_available: newVal }
+    setUser(updated); localStorage.setItem('user', JSON.stringify(updated))
   }
 
-  /* ─── Bloom orb layer (reused in both logged-in and logged-out views) ─── */
-  const Orbs = () => (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -top-32 -left-20 w-105 h-105 rounded-full bg-[radial-gradient(circle,rgba(26,79,190,0.70)_0%,transparent_70%)] mix-blend-screen animate-[breathe1_9s_ease-in-out_infinite]" />
-      <div className="absolute top-20 left-16 w-90 h-90 rounded-full bg-[radial-gradient(circle,rgba(80,40,160,0.55)_0%,transparent_68%)] mix-blend-screen animate-[breathe2_11s_ease-in-out_infinite]" />
-      <div className="absolute top-40 -right-24 w-95 h-95 rounded-full bg-[radial-gradient(circle,rgba(20,110,140,0.60)_0%,transparent_68%)] mix-blend-screen animate-[breathe3_10s_ease-in-out_infinite]" />
-      <div className="absolute bottom-16 -left-14 w-75 h-75 rounded-full bg-[radial-gradient(circle,rgba(30,80,200,0.50)_0%,transparent_65%)] mix-blend-screen animate-[breathe1_12s_ease-in-out_infinite_reverse]" />
-      <div className="absolute -bottom-10 right-0 w-70 h-70 rounded-full bg-[radial-gradient(circle,rgba(60,20,130,0.45)_0%,transparent_65%)] mix-blend-screen animate-[breathe2_8s_ease-in-out_infinite_reverse]" />
+  if (inCall && token) return <CallModes token={token} roomName={roomName} onEndCall={() => setInCall(false)} />
+
+  if (loggedIn) return (
+    <div style={PHONE}>
+      <TopBar />
+      <ZoomedCurtains />
+      <List>
+        <div style={RULE} />
+        <Row num="01" label="CALL" onClick={startCall} />
+        <div style={RULE} />
+        <Row num="02" label={user.is_available ? 'AVAILABLE' : 'UNAVAILABLE'} color={user.is_available ? 'rgba(120,220,160,0.85)' : 'rgba(255,100,100,0.8)'} />
+        <div style={RULE} />
+        <Row num="03" label={user.is_available ? 'BECOME UNAVAILABLE' : 'BECOME AVAILABLE'} onClick={toggleAvailability} />
+        <div style={RULE} />
+        <Row num="04" label="LOG OUT" onClick={() => { localStorage.removeItem('user'); setLoggedIn(false); setUser(null) }} />
+        <div style={RULE} />
+        <Row num="05" label="SYNOPSIS" onClick={() => window.location.href = '/about'} />
+        <div style={RULE} />
+        <Row num="06" label="HIGHER FORCES" onClick={() => window.open('https://higherforces.art', '_blank')} />
+        <div style={RULE} />
+      </List>
+
+      {incoming && (
+        <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, backgroundImage: 'url(/curtains.jpeg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div style={PHONE}>
+            <TopBar />
+            <ZoomedCurtains />
+            <List>
+              <div style={RULE} />
+              <div style={{ padding: '20px 0' }}>
+                <span style={FIELD_LBL}>INCOMING CALL</span>
+                <span style={{ ...LBL, color: 'rgba(255,255,255,0.72)' }}>{incoming.caller_name}</span>
+              </div>
+              <div style={RULE} />
+              <div style={{ display: 'flex' }}>
+                <div onClick={() => setIncoming(null)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 0', cursor: 'pointer' }}>
+                  <span style={{ ...LBL, color: 'rgba(255,100,100,0.8)' }}>DECLINE</span>
+                </div>
+                <div style={{ width: 1, background: 'rgba(255,255,255,0.15)' }} />
+                <div onClick={acceptCall} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 0', cursor: 'pointer' }}>
+                  <span style={{ ...LBL, color: 'rgba(120,220,160,0.85)' }}>ANSWER</span>
+                </div>
+              </div>
+              <div style={RULE} />
+            </List>
+          </div>
+        </div>
+      )}
     </div>
   )
 
-  if (loggedIn) {
-    return (
-      <div className="relative min-h-screen bg-[#0e1f3d] text-white flex flex-col items-center justify-center p-6 overflow-hidden">
-        <Orbs />
-
-        <div className="relative z-10 flex flex-col items-center gap-10 w-full max-w-xs">
-
-          {/* Title */}
-          <div className="text-center">
-            <h1 className="text-5xl font-light tracking-[0.2rem] uppercase">CALL CENTER</h1>
-            <p className="text-xs tracking-[0.25em] uppercase text-white/50 mt-2">distributed artwork</p>
-          </div>
-
-          {/* Availability status pill */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <div className={`w-2 h-2 rounded-full shrink-0 ${user.is_available ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-red-600 shadow-[0_0_8px_rgba(52,211,153,0.8)]'}`} />
-            <span className="text-[10px] tracking-widest text-white/50 uppercase">{user.is_available ? 'available' : 'unavailable'}</span>
-          </div>
-
-          {/* Call — main verb, Bloom-style */}
-          <div className="w-full border-t border-b border-white/13 py-1">
-            <div className="flex justify-center">
-              <button onClick={startCall} className="text-3xl font-light text-white bg-transparent border-none cursor-pointer px-8 py-5 tracking-wide transition-opacity hover:opacity-65">
-                CALL
-              </button>
-            </div>
-            <p className="text-sm text-white/50 text-center pb-4 px-4 leading-relaxed">
-              Dial out and reach the unexpected.
-            </p>
-          </div>
-
-          {/* Availability toggle */}
-          
-          <div className="flex flex-col gap-2 w-full">
-  <button
-    onClick={async () => {
-      const newVal = !user.is_available
-      await fetch('/api/users', {
-        method: 'POST',
-        body: JSON.stringify({ id: user.id, is_available: newVal }),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      setUser({ ...user, is_available: newVal })
-    }}
-    className="w-full py-3 text-[11px] tracking-[0.15em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
-  >
-    {user.is_available ? 'Become unavailable' : 'Become available'}
-  </button>
-
-  <button
-    onClick={() => {
-      localStorage.removeItem('user')
-      setLoggedIn(false)
-      setUser(null)
-    }}
-    className="w-full py-3 text-[11px] tracking-[0.15em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
-  >
-    LOG OUT
-  </button>
-</div>
-
+  if (view === 'login') return (
+    <div style={PHONE}>
+      <TopBar />
+      <ZoomedCurtains />
+      <List>
+        <div style={RULE} />
+        <div style={{ padding: '24px 0' }}>
+          <span style={FIELD_LBL}>PHONE NUMBER</span>
+          <input type="tel" value={loginPhone} onChange={e => setLoginPhone(e.target.value)} placeholder="+ _ _ _  _ _ _  _ _ _ _" style={INPUT} onKeyDown={e => e.key === 'Enter' && handleLogin()} />
         </div>
+        <div style={RULE} />
+        <Row num="01" label="LOG IN" onClick={handleLogin} />
+        <div style={RULE} />
+        <Row num="02" label="BACK" onClick={() => setView('home')} color="rgba(255,255,255,0.35)" />
+        <div style={RULE} />
+      </List>
+    </div>
+  )
 
-        {/* Footer bar — like Bloom's Trope strip */}
-       <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.07] bg-black/50 backdrop-blur-md px-5 py-3 flex items-center justify-between z-20">
-  <a
-    href="/about"
-    className="text-white text-sm hover:text-gray-400"
-  >
-    Synopsis
-  </a>
-  <div className="text-sm text-white tracking-wide">Higher Forces</div>
-</div>
-
-        {/* Incoming call modal */}
-        {incoming && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="relative bg-[#0e1f3d]/90 border border-white/15 rounded-2xl p-8 w-full max-w-sm text-center mx-4">
-              <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-3">incoming call</p>
-              <h2 className="text-2xl font-light text-white mb-8">{incoming.caller_name}</h2>
-              <div className="flex gap-6 justify-center">
-                <button onClick={() => setIncoming(null)} className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center text-xl">✕</div>
-                  <span className="text-[10px] tracking-widest text-white/50 uppercase">End</span>
-                </button>
-                <button onClick={acceptCall} className="flex flex-col items-center gap-2">
-                  <div className="w-16 h-16 rounded-full bg-emerald-400 flex items-center justify-center text-xl text-[#0e1f3d]">↙</div>
-                  <span className="text-[10px] tracking-widest text-white/50 uppercase">Answer</span>
-                </button>
-              </div>
-            </div>
+  if (view === 'register') return (
+    <div style={PHONE}>
+      <TopBar />
+      <ZoomedCurtains />
+      <List>
+        <div style={RULE} />
+        <div style={{ padding: '24px 0', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div>
+            <span style={FIELD_LBL}>NAME</span>
+            <input value={regName} onChange={e => setRegName(e.target.value)} placeholder="YOUR NAME" style={INPUT} />
           </div>
-        )}
-      </div>
-    )
-  }
+          <div>
+            <span style={FIELD_LBL}>PHONE NUMBER</span>
+            <input type="tel" value={regPhone} onChange={e => setRegPhone(e.target.value)} placeholder="+ _ _ _  _ _ _  _ _ _ _" style={INPUT} />
+          </div>
+        </div>
+        <div style={RULE} />
+        <Row num="01" label="REGISTER" onClick={handleRegister} />
+        <div style={RULE} />
+        <Row num="02" label="BACK" onClick={() => setView('home')} color="rgba(255,255,255,0.35)" />
+        <div style={RULE} />
+      </List>
+    </div>
+  )
 
   return (
-    <div className="relative min-h-screen bg-[#0e1f3d] text-white flex items-center justify-center overflow-hidden">
-      <Orbs />
-
-      <div className="relative z-10 text-center flex flex-col items-center gap-10 max-w-xs w-full px-8">
-
-        <div>
-          <h1 className="text-5xl font-light tracking-[0.2em] uppercase">CALL CENTER</h1>
-          <p className="text-xs tracking-[0.25em] uppercase text-white/50 mt-2">distributed artwork</p>
-        </div>
-
-        <div className="w-full flex flex-col gap-3">
-          <button
-            onClick={() => setShowLogin(true)}
-            className="w-full py-3 text-[11px] tracking-[0.2em] uppercase text-white bg-white/10 border border-white/15 rounded-xl hover:bg-white/18 transition-all"
-          >
-            LOG IN
-          </button>
-          <button
-            onClick={() => setShowRegister(true)}
-            className="w-full py-3 text-[11px] tracking-[0.2em] uppercase text-white/50 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all"
-          >
-            REGISTER
-          </button>
-        </div>
-
-        <p className="text-[10px] text-white/30 tracking-widest uppercase">Higher Forces</p>
-      </div>
-
-      {showLogin && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#0e1f3d]/90 border border-white/15 rounded-2xl p-8 w-full max-w-sm relative mx-4">
-             <Orbs />
-            <button onClick={() => setShowLogin(false)} className="absolute top-4 right-5 text-white/40 hover:text-white text-2xl transition-colors">×</button>
-            <div className="space-y-8">
-              <h2 className="text-4xl">Welcome back</h2>
-              <input
-                type="tel"
-                value={loginPhone}
-                onChange={e => setLoginPhone(e.target.value)}
-                placeholder="your phone number"
-                className="w-full p-5 bg-white/10 rounded-xl text-white placeholder-white/50 border-none focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-              <button
-                onClick={() => loginPhone && handleLogin(loginPhone)}
-                className="w-full py-5 bg-white/20 rounded-full text-lg hover:bg-white/30"
-              >
-                LOG IN
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showRegister && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-        
-          <div className="bg-[#0e1f3d]/90 border border-white/15 rounded-2xl p-8 w-full max-w-sm relative mx-4">
-              <Orbs />
-            <button onClick={() => setShowRegister(false)} className="absolute top-4 right-5 text-white/40 hover:text-white text-2xl transition-colors">×</button>
-            <div className="space-y-8">
-              <h2 className="text-4xl">Register</h2>
-              <input
-                placeholder="Name"
-                className="w-full p-5 bg-white/10 rounded-xl text-white placeholder-white/50 border-none focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-              <input
-                type="tel"
-                placeholder="Phone number"
-                className="w-full p-5 bg-white/10 rounded-xl text-white placeholder-white/50 border-none focus:outline-none focus:ring-2 focus:ring-white/30"
-              />
-             <button
-  onClick={() => {
-    const name = (document.querySelector('input[placeholder="Name"]') as HTMLInputElement)?.value.trim()
-const phone = (document.querySelector('input[type="tel"]') as HTMLInputElement)?.value.trim()
-    if (name && phone) {
-      handleRegister(name, phone)
-    } else {
-      alert('Enter name and phone number')
-    }
-  }}
-  className="w-full py-5 bg-white/20 rounded-full text-lg hover:bg-white/30"
->
-  REGISTER
-</button>
-            </div>
-          </div>
-        </div>
-      )}
+    <div style={PHONE}>
+      <TopBar />
+      <ZoomedCurtains />
+      <List>
+        <div style={RULE} />
+        <Row num="01" label="LOG IN" onClick={() => setView('login')} />
+        <div style={RULE} />
+        <Row num="02" label="REGISTER" onClick={() => setView('register')} />
+        <div style={RULE} />
+        <Row num="03" label="SYNOPSIS" onClick={() => window.location.href = '/about'} />
+        <div style={RULE} />
+        <Row num="04" label="HIGHER FORCES" onClick={() => window.open('https://higherforces.art', '_blank')} />
+        <div style={RULE} />
+      </List>
     </div>
   )
 }
