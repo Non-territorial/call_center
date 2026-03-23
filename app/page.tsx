@@ -109,6 +109,13 @@ export default function Home() {
   }, [incoming])
 
   useEffect(() => {
+    if (inCall) {
+      ringtoneRef.current?.pause()
+      if (ringtoneRef.current) ringtoneRef.current.currentTime = 0
+    }
+  }, [inCall])
+
+  useEffect(() => {
     const stored = localStorage.getItem('user')
     if (stored) { const u = JSON.parse(stored); setUser(u); setLoggedIn(true) }
   }, [])

@@ -1,6 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { LiveKitRoom, AudioConference, RoomAudioRenderer } from '@livekit/components-react'
+import { useState, useEffect, useRef } from 'react'
+import { LiveKitRoom, AudioConference, RoomAudioRenderer, useParticipants } from '@livekit/components-react'
 import '@livekit/components-styles'
 
 const PHONE_DESKTOP: React.CSSProperties = { width: 360, height: 780, background: '#000', borderRadius: 32, border: '1px solid rgba(255,255,255,0.18)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }
@@ -15,49 +15,42 @@ interface CallModesProps {
   onEndCall: () => void
 }
 
-export default function CallModes({ token, roomName, onEndCall }: CallModesProps) {
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+function CallUI({ roomName, onEndCall, isMobile }: { roomName: string; onEndCall: () => void; isMobile: boolean }) {
+  const participants = useParticipants()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const otherJoinedRef = useRef(false)
   const PHONE = isMobile ? PHONE_MOBILE : PHONE_DESKTOP
+
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => {
+      if (!otherJoinedRef.current) onEndCall()
+    }, 25000)
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }
+  }, [])
+
+  useEffect(() => {
+    const others = participants.length - 1
+    if (others > 0) {
+      otherJoinedRef.current = true
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+    if (otherJoinedRef.current && others === 0) {
+      onEndCall()
+    }
+  }, [participants])
+
   return (
-    <LiveKitRoom
-      token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      connect={true}
-      audio={true}
-      video={false}
-      onDisconnected={onEndCall}
-    >
-      <AudioConference />
-      <RoomAudioRenderer volume={1.0} />
-
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={PHONE}>
-
         <div style={{ height: 60, background: '#000', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
           <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 19, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.2em', textTransform: 'uppercase', lineHeight: 1 }}>CALL CENTER</span>
           <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 8, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.3em', textTransform: 'uppercase' }}>DISTRIBUTED ARTWORK</span>
         </div>
-
         <div style={{ padding: '0 28px', background: '#000', flexShrink: 0 }}>
           <div style={{ width: '100%', height: 220, overflow: 'hidden', position: 'relative' }}>
-            <img src="/curtains.jpeg" alt="" style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center center',
-              display: 'block',
-              transform: 'scale(2.2)',
-              filter: 'brightness(0.75)',
-            }} />
+            <img src="/curtains.jpeg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block', transform: 'scale(2.2)', filter: 'brightness(0.75)' }} />
           </div>
         </div>
-
         <div style={{ flex: 1, background: '#000', padding: '0 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div style={RULE} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', flexShrink: 0 }}>
@@ -76,9 +69,33 @@ export default function CallModes({ token, roomName, onEndCall }: CallModesProps
           </div>
           <div style={RULE} />
         </div>
+      </div>
+    </div>
+  )
+}
 
-      </div>
-      </div>
+export default function CallModes({ token, roomName, onEndCall }: CallModesProps) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  return (
+    <LiveKitRoom
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      connect={true}
+      audio={true}
+      video={false}
+      onDisconnected={onEndCall}
+    >
+      <AudioConference />
+      <RoomAudioRenderer volume={1.0} />
+      <CallUI roomName={roomName} onEndCall={onEndCall} isMobile={isMobile} />
     </LiveKitRoom>
   )
 }
