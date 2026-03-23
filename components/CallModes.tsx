@@ -18,26 +18,63 @@ interface CallModesProps {
 function CallUI({ roomName, onEndCall, isMobile }: { roomName: string; onEndCall: () => void; isMobile: boolean }) {
   const participants = useParticipants()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const otherJoinedRef = useRef(false)
+  const [callStatus, setCallStatus] = useState<'calling' | 'connected' | 'declined' | 'no_answer'>('calling')
   const PHONE = isMobile ? PHONE_MOBILE : PHONE_DESKTOP
 
+  // Poll call status so caller knows immediately if declined
+  useEffect(() => {
+    pollRef.current = setInterval(async () => {
+      if (otherJoinedRef.current) {
+        if (pollRef.current) clearInterval(pollRef.current)
+        return
+      }
+      try {
+        const res = await fetch(`/api/call-status?roomName=${encodeURIComponent(roomName)}`)
+        const data = await res.json()
+        if (data?.status === 'declined') {
+          setCallStatus('declined')
+          if (pollRef.current) clearInterval(pollRef.current)
+          if (timeoutRef.current) clearTimeout(timeoutRef.current)
+          setTimeout(() => onEndCall(), 2500)
+        }
+      } catch {}
+    }, 2000)
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [])
+
+  // Auto-end if nobody joins within 25 seconds
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
-      if (!otherJoinedRef.current) onEndCall()
+      if (!otherJoinedRef.current) {
+        setCallStatus('no_answer')
+        setTimeout(() => onEndCall(), 2500)
+      }
     }, 25000)
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }
   }, [])
 
+  // Track participants
   useEffect(() => {
     const others = participants.length - 1
     if (others > 0) {
       otherJoinedRef.current = true
+      setCallStatus('connected')
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (pollRef.current) clearInterval(pollRef.current)
     }
     if (otherJoinedRef.current && others === 0) {
       onEndCall()
     }
   }, [participants])
+
+  const statusLabel = () => {
+    if (callStatus === 'declined') return { text: 'NO ANSWER', color: 'rgba(255,100,100,0.8)' }
+    if (callStatus === 'no_answer') return { text: 'NO ANSWER', color: 'rgba(255,100,100,0.8)' }
+    if (callStatus === 'connected') return { text: 'IN CALL', color: 'rgba(120,220,160,0.85)' }
+    return { text: 'CALLING...', color: 'rgba(255,255,255,0.45)' }
+  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -55,18 +92,24 @@ function CallUI({ roomName, onEndCall, isMobile }: { roomName: string; onEndCall
           <div style={RULE} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', flexShrink: 0 }}>
             <span style={NUM}>01</span>
-            <span style={{ ...LBL, color: 'rgba(120,220,160,0.85)' }}>IN CALL</span>
+            <span style={{ ...LBL, color: statusLabel().color }}>{statusLabel().text}</span>
           </div>
           <div style={RULE} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', flexShrink: 0 }}>
-            <span style={NUM}>02</span>
-            <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{roomName}</span>
-          </div>
-          <div style={RULE} />
-          <div onClick={onEndCall} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: 'pointer', flexShrink: 0 }}>
-            <span style={NUM}>03</span>
-            <span style={{ ...LBL, color: 'rgba(255,100,100,0.8)' }}>END CALL</span>
-          </div>
+          {callStatus === 'connected' && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', flexShrink: 0 }}>
+                <span style={NUM}>02</span>
+                <span style={{ fontFamily: 'Isocpeur, monospace', fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{roomName}</span>
+              </div>
+              <div style={RULE} />
+            </>
+          )}
+          {(callStatus === 'calling' || callStatus === 'connected') && (
+            <div onClick={onEndCall} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: 'pointer', flexShrink: 0 }}>
+              <span style={NUM}>{callStatus === 'connected' ? '03' : '02'}</span>
+              <span style={{ ...LBL, color: 'rgba(255,100,100,0.8)' }}>END CALL</span>
+            </div>
+          )}
           <div style={RULE} />
         </div>
       </div>
