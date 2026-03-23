@@ -38,3 +38,13 @@ button[aria-label="Chat"],
 .lk-chat-header {
   display: none !important;
 }
+
+/* Hide PWA install prompt injected by next-pwa */
+#pwa-install-prompt,
+.pwa-install-prompt,
+[data-pwa-install],
+button[aria-label="Install"],
+button[aria-label="Install app"],
+.install-button {
+  display: none !important;
+}
