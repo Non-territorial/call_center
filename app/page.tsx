@@ -177,7 +177,7 @@ export default function Home() {
 
   const PHONE = isMobile ? PHONE_MOBILE : PHONE_DESKTOP
 
-  if (inCall && token) return <CallModes token={token} roomName={roomName} onEndCall={() => { setInCall(false); setToken(''); setRoomName('') }} />
+  if (inCall && token) return <CallModes token={token} roomName={roomName} onEndCall={() => { setInCall(false); setToken(''); setRoomName('') }} onRetry={() => { setInCall(false); setToken(''); setRoomName(''); setTimeout(() => startCall(), 100) }} />
 
   if (loggedIn) return (
     <div style={PHONE}>
@@ -292,9 +292,11 @@ export default function Home() {
         <div style={RULE} />
         <Row num="02" label="REGISTER" onClick={() => setView('register')} />
         <div style={RULE} />
-        <Row num="03" label="SYNOPSIS" onClick={() => window.location.href = '/about'} />
+        <Row num="03" label="INSTALL APP" onClick={() => window.location.href = '/install'} />
         <div style={RULE} />
-        <Row num="04" label="HIGHER FORCES" onClick={() => window.open('https://higherforces.art', '_blank')} />
+        <Row num="04" label="SYNOPSIS" onClick={() => window.location.href = '/about'} />
+        <div style={RULE} />
+        <Row num="05" label="HIGHER FORCES" onClick={() => window.open('https://higherforces.art', '_blank')} />
         <div style={RULE} />
       </List>
     </div>

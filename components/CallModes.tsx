@@ -13,9 +13,10 @@ interface CallModesProps {
   token: string
   roomName: string
   onEndCall: () => void
+  onRetry: () => void
 }
 
-function CallUI({ roomName, onEndCall, isMobile }: { roomName: string; onEndCall: () => void; isMobile: boolean }) {
+function CallUI({ roomName, onEndCall, onRetry, isMobile }: { roomName: string; onEndCall: () => void; onRetry: () => void; isMobile: boolean }) {
   const participants = useParticipants()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -104,6 +105,19 @@ function CallUI({ roomName, onEndCall, isMobile }: { roomName: string; onEndCall
               <div style={RULE} />
             </>
           )}
+          {(callStatus === 'declined' || callStatus === 'no_answer') && (
+            <>
+              <div onClick={onRetry} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: 'pointer', flexShrink: 0 }}>
+                <span style={NUM}>02</span>
+                <span style={{ ...LBL, color: 'rgba(255,255,255,0.72)' }}>CALL AGAIN</span>
+              </div>
+              <div style={RULE} />
+              <div onClick={onEndCall} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: 'pointer', flexShrink: 0 }}>
+                <span style={NUM}>03</span>
+                <span style={{ ...LBL, color: 'rgba(255,100,100,0.8)' }}>END</span>
+              </div>
+            </>
+          )}
           {(callStatus === 'calling' || callStatus === 'connected') && (
             <div onClick={onEndCall} style={{ display: 'flex', alignItems: 'center', gap: 28, padding: '16px 0', cursor: 'pointer', flexShrink: 0 }}>
               <span style={NUM}>{callStatus === 'connected' ? '03' : '02'}</span>
@@ -117,7 +131,7 @@ function CallUI({ roomName, onEndCall, isMobile }: { roomName: string; onEndCall
   )
 }
 
-export default function CallModes({ token, roomName, onEndCall }: CallModesProps) {
+export default function CallModes({ token, roomName, onEndCall, onRetry }: CallModesProps) {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -138,7 +152,7 @@ export default function CallModes({ token, roomName, onEndCall }: CallModesProps
     >
       <AudioConference />
       <RoomAudioRenderer volume={1.0} />
-      <CallUI roomName={roomName} onEndCall={onEndCall} isMobile={isMobile} />
+      <CallUI roomName={roomName} onEndCall={onEndCall} onRetry={onRetry} isMobile={isMobile} />
     </LiveKitRoom>
   )
 }
