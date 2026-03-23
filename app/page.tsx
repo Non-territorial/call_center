@@ -120,12 +120,16 @@ export default function Home() {
     if (stored) { const u = JSON.parse(stored); setUser(u); setLoggedIn(true) }
   }, [])
 
+  const declinedCallIds = useRef<Set<string>>(new Set())
+
   useEffect(() => {
     if (!user?.id || inCall) return
     const interval = setInterval(async () => {
       const res = await fetch(`/api/incoming?userId=${user.id}`)
       const data = await res.json()
-      if (data && data.caller_id !== user.id) setIncoming(data)
+      if (data && data.caller_id !== user.id && !declinedCallIds.current.has(data.id)) {
+        setIncoming(data)
+      }
     }, 5000)
     return () => clearInterval(interval)
   }, [user, inCall])
@@ -209,7 +213,17 @@ export default function Home() {
               </div>
               <div style={RULE} />
               <div style={{ display: 'flex' }}>
-                <div onClick={() => setIncoming(null)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 0', cursor: 'pointer' }}>
+                <div onClick={async () => {
+                  if (incoming?.id) {
+                    declinedCallIds.current.add(incoming.id)
+                    await fetch('/api/decline-call', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ callId: incoming.id, userId: user.id })
+                    }).catch(() => {})
+                  }
+                  setIncoming(null)
+                }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 0', cursor: 'pointer' }}>
                   <span style={{ ...LBL, color: 'rgba(255,100,100,0.8)' }}>DECLINE</span>
                 </div>
                 <div style={{ width: 1, background: 'rgba(255,255,255,0.15)' }} />
