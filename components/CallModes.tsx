@@ -1,8 +1,10 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { LiveKitRoom, AudioConference, RoomAudioRenderer } from '@livekit/components-react'
 import '@livekit/components-styles'
 
-const PHONE: React.CSSProperties = { width: 360, height: 780, background: '#000', borderRadius: 32, border: '1px solid rgba(255,255,255,0.18)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }
+const PHONE_DESKTOP: React.CSSProperties = { width: 360, height: 780, background: '#000', borderRadius: 32, border: '1px solid rgba(255,255,255,0.18)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }
+const PHONE_MOBILE: React.CSSProperties = { width: '100vw', height: '100dvh', background: '#000', borderRadius: 0, border: 'none', overflow: 'hidden', display: 'flex', flexDirection: 'column' }
 const RULE: React.CSSProperties = { height: 1, background: 'rgba(255,255,255,0.15)', flexShrink: 0 }
 const NUM: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', minWidth: 24, flexShrink: 0, lineHeight: 1 }
 const LBL: React.CSSProperties = { fontFamily: 'Isocpeur, monospace', fontSize: 15, letterSpacing: '0.1em', textTransform: 'uppercase', lineHeight: 1 }
@@ -14,6 +16,14 @@ interface CallModesProps {
 }
 
 export default function CallModes({ token, roomName, onEndCall }: CallModesProps) {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  const PHONE = isMobile ? PHONE_MOBILE : PHONE_DESKTOP
   return (
     <LiveKitRoom
       token={token}
@@ -36,7 +46,15 @@ export default function CallModes({ token, roomName, onEndCall }: CallModesProps
 
         <div style={{ padding: '0 28px', background: '#000', flexShrink: 0 }}>
           <div style={{ width: '100%', height: 220, overflow: 'hidden', position: 'relative' }}>
-            <img src="/curtains.jpeg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block', transform: 'scale(2.2)', filter: 'brightness(0.75)' }} />
+            <img src="/curtains.jpeg" alt="" style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+              display: 'block',
+              transform: 'scale(2.2)',
+              filter: 'brightness(0.75)',
+            }} />
           </div>
         </div>
 
