@@ -85,6 +85,7 @@ export default function Home() {
   const [regName, setRegName] = useState('')
   const [regPhone, setRegPhone] = useState('')
   const ringtoneRef = useRef<HTMLAudioElement | null>(null)
+  const declinedCallIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -119,8 +120,6 @@ export default function Home() {
     const stored = localStorage.getItem('user')
     if (stored) { const u = JSON.parse(stored); setUser(u); setLoggedIn(true) }
   }, [])
-
-  const declinedCallIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     if (!user?.id || inCall) return
@@ -178,7 +177,7 @@ export default function Home() {
 
   const PHONE = isMobile ? PHONE_MOBILE : PHONE_DESKTOP
 
-  if (inCall && token) return <CallModes token={token} roomName={roomName} onEndCall={() => setInCall(false)} />
+  if (inCall && token) return <CallModes token={token} roomName={roomName} onEndCall={() => { setInCall(false); setToken(''); setRoomName('') }} />
 
   if (loggedIn) return (
     <div style={PHONE}>
