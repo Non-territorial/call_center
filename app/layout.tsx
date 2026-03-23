@@ -9,15 +9,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.addEventListener('beforeinstallprompt', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }, true);
-        `}} />
-      </head>
       <body
         style={{
           minHeight: '100vh',
